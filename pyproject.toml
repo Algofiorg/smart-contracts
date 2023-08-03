@@ -1,0 +1,6 @@
+[build-system]
+requires = ["poetry-core", "setuptools", "wheel"]
+
+
+[tool.black]
+line-length = 79

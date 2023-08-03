@@ -1,0 +1,3 @@
+py-algorand-sdk==1.18.0
+pyteal==0.18.1
+black==23.7.0
