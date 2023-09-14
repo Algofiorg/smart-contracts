@@ -1,8 +1,8 @@
-"""Constants for AlgoFi AMM."""
+"""Constants for AMM."""
 
 from pyteal import *
 
-from algofi.utils.constants import *
+from contracts.utils.constants import *
 
 # POOL SCHEMA
 POOL_GLOBAL_NUM_BYTES = Int(4)

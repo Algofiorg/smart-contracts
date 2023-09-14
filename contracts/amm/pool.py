@@ -1,11 +1,11 @@
-"""Defines the AlgoFi AMM Pool contract logic."""
+"""Defines the AMM Pool contract logic."""
 
 from pyteal import *
 
-from algofi.amm.constants import *
-from algofi.amm.contract_strings import *
-from algofi.amm.subroutines import *
-from algofi.utils.wrapped_var import *
+from contracts.amm.constants import *
+from contracts.amm.contract_strings import *
+from contracts.amm.subroutines import *
+from contracts.utils.wrapped_var import *
 
 
 # POOL HELPERS
@@ -82,8 +82,8 @@ def verify_txn_is_sending_asa_to_pool(idx, asset_id):
     )
 
 
-class AlgofiAMMPool:
-    """Contract class for the AlgoFi AMM Pool."""
+class AMMPool:
+    """Contract class for the AMM Pool."""
 
     def __init__(
         self, manager_app_id, swap_fee_pct_scaled=DEFAULT_SWAP_FEE_PCT_SCALED
@@ -134,101 +134,101 @@ class AlgofiAMMPool:
         self.lp_issued_from_asset2_store = ScratchVar(TealType.uint64, 29)
 
         # GLOBAL VARS
-        self.lp_id = WrappedVar(AlgofiAMMPoolStrings.lp_id, GLOBAL_VAR)
-        self.admin = WrappedVar(AlgofiAMMPoolStrings.admin, GLOBAL_VAR)
+        self.lp_id = WrappedVar(AMMPoolStrings.lp_id, GLOBAL_VAR)
+        self.admin = WrappedVar(AMMPoolStrings.admin, GLOBAL_VAR)
         self.initialized = WrappedVar(
-            AlgofiAMMPoolStrings.initialized, GLOBAL_VAR
+            AMMPoolStrings.initialized, GLOBAL_VAR
         )
-        self.asset1_id = WrappedVar(AlgofiAMMPoolStrings.asset1_id, GLOBAL_VAR)
-        self.asset2_id = WrappedVar(AlgofiAMMPoolStrings.asset2_id, GLOBAL_VAR)
-        self.balance_1 = WrappedVar(AlgofiAMMPoolStrings.balance_1, GLOBAL_VAR)
-        self.balance_2 = WrappedVar(AlgofiAMMPoolStrings.balance_2, GLOBAL_VAR)
+        self.asset1_id = WrappedVar(AMMPoolStrings.asset1_id, GLOBAL_VAR)
+        self.asset2_id = WrappedVar(AMMPoolStrings.asset2_id, GLOBAL_VAR)
+        self.balance_1 = WrappedVar(AMMPoolStrings.balance_1, GLOBAL_VAR)
+        self.balance_2 = WrappedVar(AMMPoolStrings.balance_2, GLOBAL_VAR)
         self.lp_circulation = WrappedVar(
-            AlgofiAMMPoolStrings.lp_circulation, GLOBAL_VAR
+            AMMPoolStrings.lp_circulation, GLOBAL_VAR
         )
         self.reserve_factor = WrappedVar(
-            AlgofiAMMPoolStrings.reserve_factor, GLOBAL_VAR
+            AMMPoolStrings.reserve_factor, GLOBAL_VAR
         )
         self.asset1_reserve = WrappedVar(
-            AlgofiAMMPoolStrings.asset1_reserve, GLOBAL_VAR
+            AMMPoolStrings.asset1_reserve, GLOBAL_VAR
         )
         self.asset2_reserve = WrappedVar(
-            AlgofiAMMPoolStrings.asset2_reserve, GLOBAL_VAR
+            AMMPoolStrings.asset2_reserve, GLOBAL_VAR
         )
         self.cumsum_time_weighted_asset1_to_asset2_price = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_time_weighted_asset1_to_asset2_price,
+            AMMPoolStrings.cumsum_time_weighted_asset1_to_asset2_price,
             GLOBAL_VAR,
         )
         self.cumsum_time_weighted_asset2_to_asset1_price = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_time_weighted_asset2_to_asset1_price,
+            AMMPoolStrings.cumsum_time_weighted_asset2_to_asset1_price,
             GLOBAL_VAR,
         )
         self.latest_time = WrappedVar(
-            AlgofiAMMPoolStrings.latest_time, GLOBAL_VAR
+            AMMPoolStrings.latest_time, GLOBAL_VAR
         )
         self.cumsum_volume_asset1 = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_volume_asset1, GLOBAL_VAR
+            AMMPoolStrings.cumsum_volume_asset1, GLOBAL_VAR
         )
         self.cumsum_volume_asset2 = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_volume_asset2, GLOBAL_VAR
+            AMMPoolStrings.cumsum_volume_asset2, GLOBAL_VAR
         )
         self.cumsum_volume_weighted_asset1_to_asset2_price = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_volume_weighted_asset1_to_asset2_price,
+            AMMPoolStrings.cumsum_volume_weighted_asset1_to_asset2_price,
             GLOBAL_VAR,
         )
         self.cumsum_volume_weighted_asset2_to_asset1_price = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_volume_weighted_asset2_to_asset1_price,
+            AMMPoolStrings.cumsum_volume_weighted_asset2_to_asset1_price,
             GLOBAL_VAR,
         )
         self.cumsum_fees_asset1 = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_fees_asset1, GLOBAL_VAR
+            AMMPoolStrings.cumsum_fees_asset1, GLOBAL_VAR
         )
         self.cumsum_fees_asset2 = WrappedVar(
-            AlgofiAMMPoolStrings.cumsum_fees_asset2, GLOBAL_VAR
+            AMMPoolStrings.cumsum_fees_asset2, GLOBAL_VAR
         )
         self.flash_loan_fee = WrappedVar(
-            AlgofiAMMPoolStrings.flash_loan_fee, GLOBAL_VAR
+            AMMPoolStrings.flash_loan_fee, GLOBAL_VAR
         )
         self.max_flash_loan_ratio = WrappedVar(
-            AlgofiAMMPoolStrings.max_flash_loan_ratio, GLOBAL_VAR
+            AMMPoolStrings.max_flash_loan_ratio, GLOBAL_VAR
         )
         self.validator_index = WrappedVar(
-            AlgofiAMMPoolStrings.validator_index, GLOBAL_VAR
+            AMMPoolStrings.validator_index, GLOBAL_VAR
         )
         self.manager_app_id_var = WrappedVar(
-            AlgofiAMMPoolStrings.manager_app_id_var, GLOBAL_VAR
+            AMMPoolStrings.manager_app_id_var, GLOBAL_VAR
         )
         self.swap_fee_pct_scaled_var = WrappedVar(
-            AlgofiAMMPoolStrings.swap_fee_pct_scaled_var, GLOBAL_VAR
+            AMMPoolStrings.swap_fee_pct_scaled_var, GLOBAL_VAR
         )
 
         self.swap_fee_update_time = WrappedVar(
-            AlgofiAMMPoolStrings.swap_fee_update_time, GLOBAL_VAR
+            AMMPoolStrings.swap_fee_update_time, GLOBAL_VAR
         )
         self.next_swap_fee_pct_scaled_var = WrappedVar(
-            AlgofiAMMPoolStrings.next_swap_fee_pct_scaled, GLOBAL_VAR
+            AMMPoolStrings.next_swap_fee_pct_scaled, GLOBAL_VAR
         )
         self.param_update_delay = WrappedVar(
-            AlgofiAMMPoolStrings.param_update_delay, GLOBAL_VAR
+            AMMPoolStrings.param_update_delay, GLOBAL_VAR
         )
 
         # GLOBAL EX VARS
         self.manager_admin = WrappedVar(
-            AlgofiAMMManagerStrings.admin, GLOBAL_EX_VAR, self.manager_app_id
+            AMMManagerStrings.admin, GLOBAL_EX_VAR, self.manager_app_id
         ).get()
         self.manager_reserve_factor = WrappedVar(
-            AlgofiAMMManagerStrings.reserve_factor,
+            AMMManagerStrings.reserve_factor,
             GLOBAL_EX_VAR,
             self.manager_app_id,
         ).get()
 
         self.manager_flash_loan_fee = WrappedVar(
-            AlgofiAMMManagerStrings.flash_loan_fee,
+            AMMManagerStrings.flash_loan_fee,
             GLOBAL_EX_VAR,
             self.manager_app_id,
         ).get()
         self.manager_max_flash_loan_ratio = WrappedVar(
-            AlgofiAMMManagerStrings.max_flash_loan_ratio,
+            AMMManagerStrings.max_flash_loan_ratio,
             GLOBAL_EX_VAR,
             self.manager_app_id,
         ).get()
@@ -854,14 +854,14 @@ class AlgofiAMMPool:
             """Validate redeem asset1 residual transaction."""
             return verify_txn_is_named_application_call(
                 POOL__REDEEM_POOL_ASSET1_RESIDUAL_IDX,
-                AlgofiAMMPoolStrings.redeem_pool_asset1_residual,
+                AMMPoolStrings.redeem_pool_asset1_residual,
             )
 
         def validate_redeem_asset2_residual_txn():
             """Validate redeem asset2 residual transaction."""
             return verify_txn_is_named_application_call(
                 POOL__REDEEM_POOL_ASSET2_RESIDUAL_IDX,
-                AlgofiAMMPoolStrings.redeem_pool_asset2_residual,
+                AMMPoolStrings.redeem_pool_asset2_residual,
             )
 
         def validate_lp_issuance_nonzero():
@@ -952,7 +952,7 @@ class AlgofiAMMPool:
             """Validate burn asset2 out transaction."""
             return verify_txn_is_named_application_call(
                 BURN_ASSET1_OUT__BURN_ASSET2_OUT_IDX,
-                AlgofiAMMPoolStrings.burn_asset2_out,
+                AMMPoolStrings.burn_asset2_out,
             )
 
         def handle_burn_asset1_out_txn():
@@ -1023,7 +1023,7 @@ class AlgofiAMMPool:
             """Validate burn asset1 out transaction."""
             return verify_txn_is_named_application_call(
                 BURN_ASSET2_OUT__BURN_ASSET1_OUT_IDX,
-                AlgofiAMMPoolStrings.burn_asset1_out,
+                AMMPoolStrings.burn_asset1_out,
             )
 
         def validate_burn_asset2_out_txn():
@@ -1145,7 +1145,7 @@ class AlgofiAMMPool:
             )
 
         is_swap_for_exact = Txn.application_args[0] == Bytes(
-            AlgofiAMMPoolStrings.swap_for_exact
+            AMMPoolStrings.swap_for_exact
         )
 
         def validate_asset_payment_txn():
@@ -1219,7 +1219,7 @@ class AlgofiAMMPool:
                 is_swap_for_exact,
                 verify_txn_is_named_application_call(
                     SWAP__REDEEM_SWAP_RESIDUAL_IDX,
-                    AlgofiAMMPoolStrings.redeem_swap_residual,
+                    AMMPoolStrings.redeem_swap_residual,
                 ),
             )
 
@@ -1542,7 +1542,7 @@ class AlgofiAMMPool:
         )
         return self.redeem_residual(
             REDEEM_POOL_ASSET1_RESIDUAL__POOL_IDX,
-            AlgofiAMMPoolStrings.pool,
+            AMMPoolStrings.pool,
             residual_is_asset1,
             residual_amount,
         )
@@ -1562,7 +1562,7 @@ class AlgofiAMMPool:
         )
         return self.redeem_residual(
             REDEEM_POOL_ASSET2_RESIDUAL__POOL_IDX,
-            AlgofiAMMPoolStrings.pool,
+            AMMPoolStrings.pool,
             residual_is_asset1,
             residual_amount,
         )
@@ -1584,7 +1584,7 @@ class AlgofiAMMPool:
         )
         return self.redeem_residual(
             REDEEM_SWAP_RESIDUAL__SWAP_IDX,
-            AlgofiAMMPoolStrings.swap_for_exact,
+            AMMPoolStrings.swap_for_exact,
             residual_is_asset1,
             residual_amount,
         )
@@ -1736,22 +1736,22 @@ class AlgofiAMMPool:
         return [
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.remove_reserves),
+                == Bytes(AMMPoolStrings.remove_reserves),
                 self.on_remove_reserves(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.update_swap_fee),
+                == Bytes(AMMPoolStrings.update_swap_fee),
                 self.on_update_swap_fee(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.schedule_swap_fee_update),
+                == Bytes(AMMPoolStrings.schedule_swap_fee_update),
                 self.on_schedule_swap_fee_update(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.increase_param_update_delay),
+                == Bytes(AMMPoolStrings.increase_param_update_delay),
                 self.on_increase_param_delay(),
             ],
         ]
@@ -1788,32 +1788,32 @@ class AlgofiAMMPool:
                             # pool
                             [
                                 Txn.application_args[0]
-                                == Bytes(AlgofiAMMPoolStrings.pool),
+                                == Bytes(AMMPoolStrings.pool),
                                 self.on_pool(),
                             ],
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMPoolStrings.redeem_pool_asset1_residual
+                                    AMMPoolStrings.redeem_pool_asset1_residual
                                 ),
                                 self.on_redeem_pool_asset1_residual(),
                             ],
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMPoolStrings.redeem_pool_asset2_residual
+                                    AMMPoolStrings.redeem_pool_asset2_residual
                                 ),
                                 self.on_redeem_pool_asset2_residual(),
                             ],
                             # burn
                             [
                                 Txn.application_args[0]
-                                == Bytes(AlgofiAMMPoolStrings.burn_asset1_out),
+                                == Bytes(AMMPoolStrings.burn_asset1_out),
                                 self.on_burn_asset1_out(),
                             ],
                             [
                                 Txn.application_args[0]
-                                == Bytes(AlgofiAMMPoolStrings.burn_asset2_out),
+                                == Bytes(AMMPoolStrings.burn_asset2_out),
                                 self.on_burn_asset2_out(),
                             ],
                             # swap
@@ -1821,11 +1821,11 @@ class AlgofiAMMPool:
                                 Or(
                                     Txn.application_args[0]
                                     == Bytes(
-                                        AlgofiAMMPoolStrings.swap_for_exact
+                                        AMMPoolStrings.swap_for_exact
                                     ),
                                     Txn.application_args[0]
                                     == Bytes(
-                                        AlgofiAMMPoolStrings.swap_exact_for
+                                        AMMPoolStrings.swap_exact_for
                                     ),
                                 ),
                                 self.on_swap(),
@@ -1833,14 +1833,14 @@ class AlgofiAMMPool:
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMPoolStrings.redeem_swap_residual
+                                    AMMPoolStrings.redeem_swap_residual
                                 ),
                                 self.on_redeem_swap_residual(),
                             ],
                             # flash loan
                             [
                                 Txn.application_args[0]
-                                == Bytes(AlgofiAMMPoolStrings.flash_loan),
+                                == Bytes(AMMPoolStrings.flash_loan),
                                 self.on_flash_loan(),
                             ],
                         ),
@@ -1850,7 +1850,7 @@ class AlgofiAMMPool:
             # initialization
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.initialize_pool),
+                == Bytes(AMMPoolStrings.initialize_pool),
                 self.on_initialize_pool(),
             ],
         )

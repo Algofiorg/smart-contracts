@@ -2,9 +2,9 @@
 
 from pyteal import *
 
-from algofi.governance.constants import *
-from algofi.governance.contract_strings import AlgofiVotingEscrowStrings
-from algofi.governance.subroutines import (
+from contracts.governance.constants import *
+from contracts.governance.contract_strings import VotingEscrowStrings
+from contracts.governance.subroutines import (
     MagicAssert,
     decrement,
     increment,
@@ -12,35 +12,35 @@ from algofi.governance.subroutines import (
     send_asa,
     verify_txn_is_sending_asa_to_contract,
 )
-from algofi.utils.wrapped_var import *
+from contracts.utils.wrapped_var import *
 
 
-class AlgofiVotingEscrowUser:
+class VotingEscrowUser:
     """Data structure for user state in the voting escrow contract"""
 
     def __init__(self, user_index):
         # LOCAL STATE
         self.amount_locked = WrappedVar(
-            AlgofiVotingEscrowStrings.user_amount_locked, LOCAL_VAR, user_index
+            VotingEscrowStrings.user_amount_locked, LOCAL_VAR, user_index
         )
         self.lock_start_time = WrappedVar(
-            AlgofiVotingEscrowStrings.user_lock_start_time,
+            VotingEscrowStrings.user_lock_start_time,
             LOCAL_VAR,
             user_index,
         )
         self.lock_duration = WrappedVar(
-            AlgofiVotingEscrowStrings.user_lock_duration, LOCAL_VAR, user_index
+            VotingEscrowStrings.user_lock_duration, LOCAL_VAR, user_index
         )
         self.amount_vebank = WrappedVar(
-            AlgofiVotingEscrowStrings.user_amount_vebank, LOCAL_VAR, user_index
+            VotingEscrowStrings.user_amount_vebank, LOCAL_VAR, user_index
         )
         self.boost_multiplier = WrappedVar(
-            AlgofiVotingEscrowStrings.user_boost_multiplier,
+            VotingEscrowStrings.user_boost_multiplier,
             LOCAL_VAR,
             user_index,
         )
         self.update_time = WrappedVar(
-            AlgofiVotingEscrowStrings.user_last_update_time,
+            VotingEscrowStrings.user_last_update_time,
             LOCAL_VAR,
             user_index,
         )
@@ -50,33 +50,33 @@ class AlgofiVotingEscrowUser:
         return self.lock_start_time.get() + self.lock_duration.get()
 
 
-class AlgofiVotingEscrow:
+class VotingEscrow:
     """Vote Escrow Contract"""
 
     def __init__(self):
         # GLOBAL STATE
         self.dao_address = WrappedVar(
-            AlgofiVotingEscrowStrings.dao_address, GLOBAL_VAR
+            VotingEscrowStrings.dao_address, GLOBAL_VAR
         )
         self.emergency_dao_address = WrappedVar(
-            AlgofiVotingEscrowStrings.emergency_dao_address, GLOBAL_VAR
+            VotingEscrowStrings.emergency_dao_address, GLOBAL_VAR
         )
         self.asset_id = WrappedVar(
-            AlgofiVotingEscrowStrings.asset_id, GLOBAL_VAR
+            VotingEscrowStrings.asset_id, GLOBAL_VAR
         )
         self.total_locked = WrappedVar(
-            AlgofiVotingEscrowStrings.total_locked, GLOBAL_VAR
+            VotingEscrowStrings.total_locked, GLOBAL_VAR
         )
         self.total_vebank = WrappedVar(
-            AlgofiVotingEscrowStrings.total_vebank, GLOBAL_VAR
+            VotingEscrowStrings.total_vebank, GLOBAL_VAR
         )
         self.admin_contract_app_id = WrappedVar(
-            AlgofiVotingEscrowStrings.admin_contract_app_id, GLOBAL_VAR
+            VotingEscrowStrings.admin_contract_app_id, GLOBAL_VAR
         )
 
         # HELPER CLASSES
-        self.sending_user = AlgofiVotingEscrowUser(Int(0))
-        self.target_user = AlgofiVotingEscrowUser(Int(1))
+        self.sending_user = VotingEscrowUser(Int(0))
+        self.target_user = VotingEscrowUser(Int(1))
 
     # CREATION
 
@@ -147,7 +147,7 @@ class AlgofiVotingEscrow:
         """Calculates the amount of veBANK a user has"""
         return WideRatio([amount_locked, time_remaining], [SECONDS_PER_YEAR])
 
-    def update_boost(self, user: AlgofiVotingEscrowUser):
+    def update_boost(self, user: VotingEscrowUser):
         """Updates the user's boost"""
         return Seq(
             [
@@ -164,7 +164,7 @@ class AlgofiVotingEscrow:
             ]
         )
 
-    def update_vebank_data(self, user: AlgofiVotingEscrowUser):
+    def update_vebank_data(self, user: VotingEscrowUser):
         """Updates a user's veBANK data"""
         current_time = Global.latest_timestamp()
         time_delta = current_time - user.update_time.get()
@@ -410,14 +410,14 @@ class AlgofiVotingEscrow:
                             [
                                 on_call_method
                                 == Bytes(
-                                    AlgofiVotingEscrowStrings.set_gov_token_id
+                                    VotingEscrowStrings.set_gov_token_id
                                 ),
                                 self.on_set_gov_token_id(),
                             ],
                             [
                                 on_call_method
                                 == Bytes(
-                                    AlgofiVotingEscrowStrings.set_admin_contract_app_id
+                                    VotingEscrowStrings.set_admin_contract_app_id
                                 ),
                                 self.on_set_admin_contract_app_id(),
                             ],
@@ -432,13 +432,13 @@ class AlgofiVotingEscrow:
                     # target user
                     [
                         on_call_method
-                        == Bytes(AlgofiVotingEscrowStrings.update_vebank_data),
+                        == Bytes(VotingEscrowStrings.update_vebank_data),
                         self.on_update_vebank_data(),
                     ],
                     # lock (does not require vebank update)
                     [
                         on_call_method
-                        == Bytes(AlgofiVotingEscrowStrings.lock),
+                        == Bytes(VotingEscrowStrings.lock),
                         self.on_lock(),
                     ],
                     # user
@@ -450,20 +450,20 @@ class AlgofiVotingEscrow:
                                 [
                                     on_call_method
                                     == Bytes(
-                                        AlgofiVotingEscrowStrings.extend_lock
+                                        VotingEscrowStrings.extend_lock
                                     ),
                                     self.on_extend_lock(),
                                 ],
                                 [
                                     on_call_method
                                     == Bytes(
-                                        AlgofiVotingEscrowStrings.increase_lock_amount
+                                        VotingEscrowStrings.increase_lock_amount
                                     ),
                                     self.on_increase_lock_amount(),
                                 ],
                                 [
                                     on_call_method
-                                    == Bytes(AlgofiVotingEscrowStrings.claim),
+                                    == Bytes(VotingEscrowStrings.claim),
                                     self.on_claim(),
                                 ],
                             ),

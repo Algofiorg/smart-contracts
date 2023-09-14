@@ -1,4 +1,4 @@
-"""Utility constants for AlgoFi."""
+"""Utility constants"""
 
 from pyteal import *
 
@@ -24,7 +24,7 @@ ALGO_ASSET_ID = Int(1)
 LP_DECIMALS = Int(6)
 MAX_CIRCULATION = Int(2**64 - 1)
 B_ASSET_DECIMALS = Int(6)
-URL = Bytes("https://algofi.org")
+URL = Bytes("")
 
 
 # TXN INDICES

@@ -2,14 +2,14 @@
 
 from pyteal import *
 
-from algofi.governance.constants import *
-from algofi.governance.contract_strings import (
-    AlgofiProposalFactoryStrings,
-    AlgofiProposalStrings,
-    AlgofiVotingEscrowStrings,
+from contracts.governance.constants import *
+from contracts.governance.contract_strings import (
+    ProposalFactoryStrings,
+    ProposalStrings,
+    VotingEscrowStrings,
 )
-from algofi.governance.subroutines import *
-from algofi.utils.wrapped_var import *
+from contracts.governance.subroutines import *
+from contracts.utils.wrapped_var import *
 
 
 # Subroutines
@@ -67,7 +67,7 @@ def create_proposal_from_template_and_optin(
                 TxnField.type_enum: TxnType.ApplicationCall,
                 TxnField.application_id: proposal_app_id_scratch.load(),
                 TxnField.application_args: [
-                    Bytes(AlgofiProposalStrings.opt_into_admin)
+                    Bytes(ProposalStrings.opt_into_admin)
                 ],
                 TxnField.applications: [admin_app_id],
                 TxnField.accounts: [proposer, proposer_admin_storage_account],
@@ -86,7 +86,7 @@ class User:
 
         # USER STATE
         self.current_ve_bank = WrappedVar(
-            AlgofiVotingEscrowStrings.user_amount_vebank,
+            VotingEscrowStrings.user_amount_vebank,
             LOCAL_EX_VAR,
             user_account,
             voting_escrow_app_id,
@@ -108,32 +108,32 @@ class ProposalFactory:
     def __init__(self):
         # SCRATCH VARS
         self.min_balance_store = ScratchVar(
-            TealType.uint64, AlgofiProposalFactoryScratchSlots.min_balance
+            TealType.uint64, ProposalFactoryScratchSlots.min_balance
         )
 
         # GLOBAL BYTES
         self.dao_address = WrappedVar(
-            AlgofiProposalFactoryStrings.dao_address, GLOBAL_VAR
+            ProposalFactoryStrings.dao_address, GLOBAL_VAR
         )
         self.emergency_dao_address = WrappedVar(
-            AlgofiProposalFactoryStrings.emergency_dao_address, GLOBAL_VAR
+            ProposalFactoryStrings.emergency_dao_address, GLOBAL_VAR
         )
 
         # GLOBAL INTS
         self.gov_token = WrappedVar(
-            AlgofiProposalFactoryStrings.gov_token, GLOBAL_VAR
+            ProposalFactoryStrings.gov_token, GLOBAL_VAR
         )
         self.voting_escrow_app_id = WrappedVar(
-            AlgofiProposalFactoryStrings.voting_escrow_app_id, GLOBAL_VAR
+            ProposalFactoryStrings.voting_escrow_app_id, GLOBAL_VAR
         )
         self.proposal_template = WrappedVar(
-            AlgofiProposalFactoryStrings.proposal_template, GLOBAL_VAR
+            ProposalFactoryStrings.proposal_template, GLOBAL_VAR
         )
         self.minimum_ve_bank_to_propose = WrappedVar(
-            AlgofiProposalFactoryStrings.minimum_ve_bank_to_propose, GLOBAL_VAR
+            ProposalFactoryStrings.minimum_ve_bank_to_propose, GLOBAL_VAR
         )
         self.admin_app_id = WrappedVar(
-            AlgofiProposalFactoryStrings.admin_app_id, GLOBAL_VAR
+            ProposalFactoryStrings.admin_app_id, GLOBAL_VAR
         )
 
         # DERIVED VALUES
@@ -247,7 +247,7 @@ class ProposalFactory:
                 # check previous transaction was to this app with user for ledger compatibility
                 verify_txn_is_named_no_op_application_call(
                     PREVIOUS_TRANSACTION,
-                    AlgofiProposalFactoryStrings.validate_user_account,
+                    ProposalFactoryStrings.validate_user_account,
                 ),
                 # verify sender of previous txn is the foreign account
                 verify_txn_account(PREVIOUS_TRANSACTION, 0, self.user.account),
@@ -321,28 +321,28 @@ class ProposalFactory:
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiProposalFactoryStrings.set_proposal_template
+                                    ProposalFactoryStrings.set_proposal_template
                                 ),
                                 self.on_set_proposal_template(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiProposalFactoryStrings.set_voting_escrow_app_id
+                                    ProposalFactoryStrings.set_voting_escrow_app_id
                                 ),
                                 self.on_set_voting_escrow_app_id(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiProposalFactoryStrings.set_admin_app_id
+                                    ProposalFactoryStrings.set_admin_app_id
                                 ),
                                 self.on_set_admin_app_id(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiProposalFactoryStrings.set_minimum_ve_bank_to_propose
+                                    ProposalFactoryStrings.set_minimum_ve_bank_to_propose
                                 ),
                                 self.on_set_minimum_ve_bank_to_propose(),
                             ],
@@ -357,13 +357,13 @@ class ProposalFactory:
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiProposalFactoryStrings.validate_user_account
+                            ProposalFactoryStrings.validate_user_account
                         ),
                         Approve(),
                     ],
                     [
                         type_of_call
-                        == Bytes(AlgofiProposalFactoryStrings.create_proposal),
+                        == Bytes(ProposalFactoryStrings.create_proposal),
                         self.on_create_proposal(),
                     ],
                 ),

@@ -1,7 +1,7 @@
 """Strings for the staking contract.""" ""
 
 
-class AlgofiStakingStrings:
+class StakingStrings:
     """A class containing strings for the staking contract."""
 
     asset_id = "ai"

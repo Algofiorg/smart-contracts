@@ -1,9 +1,9 @@
-"""Contains subroutines used in the Algofi AMM."""
+"""Contains subroutines used in the AMM."""
 
 from pyteal import *
 
-from algofi.amm.constants import *
-from algofi.amm.contract_strings import AlgofiAMMManagerStrings
+from contracts.amm.constants import *
+from contracts.amm.contract_strings import AMMManagerStrings
 
 # WIDELY USED FCNS
 
@@ -112,7 +112,7 @@ def op_up(fee: Expr, op_farm_app_id: Expr):
                     TxnField.type_enum: TxnType.ApplicationCall,
                     TxnField.application_id: op_farm_app_id,
                     TxnField.application_args: [
-                        Bytes(AlgofiAMMManagerStrings.farm_ops)
+                        Bytes(AMMManagerStrings.farm_ops)
                     ],
                     TxnField.fee: Int(0),
                 }

@@ -1,7 +1,7 @@
-"""Defines the strings used in the algofi governance contracts."""
+"""Defines the strings used in the governance contracts."""
 
 
-class AlgofiVotingEscrowStrings:
+class VotingEscrowStrings:
     admin_contract_app_id = "acid"
     asset_id = "ai"
     claim = "c"
@@ -23,7 +23,7 @@ class AlgofiVotingEscrowStrings:
     user_lock_start_time = "ulst"
 
 
-class AlgofiProposalStrings:
+class ProposalStrings:
     create_transaction = "ct"
     creator_of_proposal = "cop"
     for_or_against = "foa"
@@ -37,7 +37,7 @@ class AlgofiProposalStrings:
     voting_amount = "vamt"
 
 
-class AlgofiAdminContractStrings:
+class AdminContractStrings:
     admin = "a"
     cancel_proposal = "cp"
     canceled_by_emergency_dao = "cbed"
@@ -91,7 +91,7 @@ class AlgofiAdminContractStrings:
     voting_escrow_app_id = "veai"
 
 
-class AlgofiProposalFactoryStrings:
+class ProposalFactoryStrings:
     admin = "a"
     admin_app_id = "aai"
     create_proposal = "cp"

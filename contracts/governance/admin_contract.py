@@ -2,14 +2,14 @@
 
 from pyteal import *
 
-from algofi.governance.constants import *
-from algofi.governance.contract_strings import (
-    AlgofiAdminContractStrings,
-    AlgofiProposalStrings,
-    AlgofiVotingEscrowStrings,
+from contracts.governance.constants import *
+from contracts.governance.contract_strings import (
+    AdminContractStrings,
+    ProposalStrings,
+    VotingEscrowStrings,
 )
-from algofi.governance.subroutines import *
-from algofi.utils.wrapped_var import *
+from contracts.governance.subroutines import *
+from contracts.utils.wrapped_var import *
 
 # SUBROUTINES
 
@@ -31,7 +31,7 @@ def vote_on_proposal_contract(
                 TxnField.application_id: proposal_contract_app_id,
                 TxnField.on_completion: OnComplete.OptIn,
                 TxnField.application_args: [
-                    Bytes(AlgofiProposalStrings.user_vote),
+                    Bytes(ProposalStrings.user_vote),
                     Itob(for_or_against),
                     Itob(voting_amount),
                 ],
@@ -54,7 +54,7 @@ def close_out_storage_account_from_proposal(storage_account, proposal_id):
                 TxnField.type_enum: TxnType.ApplicationCall,
                 TxnField.on_completion: OnComplete.CloseOut,
                 TxnField.application_args: [
-                    Bytes(AlgofiProposalStrings.user_close_out)
+                    Bytes(ProposalStrings.user_close_out)
                 ],
                 TxnField.application_id: proposal_id,
                 TxnField.fee: ZERO_FEE,
@@ -72,12 +72,12 @@ class User:
 
         # USER STATE
         self.storage_account = WrappedVar(
-            AlgofiAdminContractStrings.storage_account, LOCAL_VAR, user_account
+            AdminContractStrings.storage_account, LOCAL_VAR, user_account
         )
 
         # USER EX VAR STATE
         self.vebank_external = WrappedVar(
-            AlgofiVotingEscrowStrings.user_amount_vebank,
+            VotingEscrowStrings.user_amount_vebank,
             LOCAL_EX_VAR,
             user_account,
             voting_escrow_app_id,
@@ -85,37 +85,37 @@ class User:
 
         # STORAGE ACCOUNT STATE
         self.user_account = WrappedVar(
-            AlgofiAdminContractStrings.user_account,
+            AdminContractStrings.user_account,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.open_to_delegation = WrappedVar(
-            AlgofiAdminContractStrings.open_to_delegation,
+            AdminContractStrings.open_to_delegation,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.delegator_count = WrappedVar(
-            AlgofiAdminContractStrings.delegator_count,
+            AdminContractStrings.delegator_count,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.delegating_to = WrappedVar(
-            AlgofiAdminContractStrings.delegating_to,
+            AdminContractStrings.delegating_to,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.vebank = WrappedVar(
-            AlgofiAdminContractStrings.vebank,
+            AdminContractStrings.vebank,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.num_proposals_opted_into = WrappedVar(
-            AlgofiAdminContractStrings.num_proposals_opted_into,
+            AdminContractStrings.num_proposals_opted_into,
             LOCAL_VAR,
             self.storage_account.get(),
         )
         self.last_proposal_creation_time = WrappedVar(
-            AlgofiAdminContractStrings.last_proposal_creation_time,
+            AdminContractStrings.last_proposal_creation_time,
             LOCAL_VAR,
             self.storage_account.get(),
         )
@@ -145,24 +145,24 @@ class Delegatee:
         # SCRATCH VARS
         self.storage_address_store = ScratchVar(
             TealType.bytes,
-            AlgofiAdminContractScratchSlots.delegatee_storage_address,
+            AdminContractScratchSlots.delegatee_storage_address,
         )
 
         # STORAGE ACCOUNT STATE
         self.open_to_delegation = WrappedVar(
-            AlgofiAdminContractStrings.open_to_delegation,
+            AdminContractStrings.open_to_delegation,
             LOCAL_VAR,
             self.storage_address_store.load(),
         )
         self.delegator_count = WrappedVar(
-            AlgofiAdminContractStrings.delegator_count,
+            AdminContractStrings.delegator_count,
             LOCAL_VAR,
             self.storage_address_store.load(),
         )
 
         # STORAGE ACCOUNT EX VAR STATE
         self.for_or_against = WrappedVar(
-            AlgofiProposalStrings.for_or_against,
+            ProposalStrings.for_or_against,
             LOCAL_EX_VAR,
             self.storage_address_store.load(),
             proposal_app_id,
@@ -190,12 +190,12 @@ class CloseOutUser:
         # SCRATCH VARS
         self.storage_address_store = ScratchVar(
             TealType.bytes,
-            AlgofiAdminContractScratchSlots.closeout_user_address,
+            AdminContractScratchSlots.closeout_user_address,
         )
 
         # STORAGE ACCOUNT STATE
         self.num_proposals_opted_into = WrappedVar(
-            AlgofiAdminContractStrings.num_proposals_opted_into,
+            AdminContractStrings.num_proposals_opted_into,
             LOCAL_VAR,
             self.storage_address_store.load(),
         )
@@ -210,10 +210,10 @@ class StorageAccount:
     def __init__(self, storage_account):
         # USER STATE
         self.user_account = WrappedVar(
-            AlgofiAdminContractStrings.user_account, LOCAL_VAR, storage_account
+            AdminContractStrings.user_account, LOCAL_VAR, storage_account
         )
         self.num_proposals_opted_into = WrappedVar(
-            AlgofiAdminContractStrings.num_proposals_opted_into,
+            AdminContractStrings.num_proposals_opted_into,
             LOCAL_VAR,
             storage_account,
         )
@@ -228,7 +228,7 @@ class Proposal:
 
         # SCRATCH VARS
         self.proposal_app_id_store = ScratchVar(
-            TealType.uint64, AlgofiAdminContractScratchSlots.proposal_app_id
+            TealType.uint64, AdminContractScratchSlots.proposal_app_id
         )
 
         # DERIVED STATE
@@ -239,42 +239,42 @@ class Proposal:
 
         # PROPOSAL STATE
         self.app_id = WrappedVar(
-            AlgofiAdminContractStrings.proposal_app_id,
+            AdminContractStrings.proposal_app_id,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.votes_for = WrappedVar(
-            AlgofiAdminContractStrings.votes_for,
+            AdminContractStrings.votes_for,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.votes_against = WrappedVar(
-            AlgofiAdminContractStrings.votes_against,
+            AdminContractStrings.votes_against,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.vote_close_time = WrappedVar(
-            AlgofiAdminContractStrings.vote_close_time,
+            AdminContractStrings.vote_close_time,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.rejected = WrappedVar(
-            AlgofiAdminContractStrings.proposal_rejected,
+            AdminContractStrings.proposal_rejected,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.execution_time = WrappedVar(
-            AlgofiAdminContractStrings.execution_time,
+            AdminContractStrings.execution_time,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.executed = WrappedVar(
-            AlgofiAdminContractStrings.executed,
+            AdminContractStrings.executed,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
         self.canceled_by_emergency_dao = WrappedVar(
-            AlgofiAdminContractStrings.canceled_by_emergency_dao,
+            AdminContractStrings.canceled_by_emergency_dao,
             LOCAL_VAR,
             self.proposal_account_address.value(),
         )
@@ -327,39 +327,39 @@ class Proposal:
         )
 
 
-class AlgofiAdminContract:
+class AdminContract:
     """Defines the admin contract for the governance system."""
 
     def __init__(self):
         # SCRATCH VARS
         self.min_balance_store = ScratchVar(
-            TealType.uint64, AlgofiAdminContractScratchSlots.min_balance
+            TealType.uint64, AdminContractScratchSlots.min_balance
         )
 
         # GLOBAL VARS
         self.voting_escrow_app_id = WrappedVar(
-            AlgofiAdminContractStrings.voting_escrow_app_id, GLOBAL_VAR
+            AdminContractStrings.voting_escrow_app_id, GLOBAL_VAR
         )
         self.quorum_value = WrappedVar(
-            AlgofiAdminContractStrings.quorum_value, GLOBAL_VAR
+            AdminContractStrings.quorum_value, GLOBAL_VAR
         )
         self.super_majority = WrappedVar(
-            AlgofiAdminContractStrings.super_majority, GLOBAL_VAR
+            AdminContractStrings.super_majority, GLOBAL_VAR
         )
         self.proposal_duration = WrappedVar(
-            AlgofiAdminContractStrings.proposal_duration, GLOBAL_VAR
+            AdminContractStrings.proposal_duration, GLOBAL_VAR
         )
         self.proposal_execution_delay = WrappedVar(
-            AlgofiAdminContractStrings.proposal_execution_delay, GLOBAL_VAR
+            AdminContractStrings.proposal_execution_delay, GLOBAL_VAR
         )
         self.proposal_creation_delay = WrappedVar(
-            AlgofiAdminContractStrings.proposal_creation_delay, GLOBAL_VAR
+            AdminContractStrings.proposal_creation_delay, GLOBAL_VAR
         )
         self.proposal_factory_address = WrappedVar(
-            AlgofiAdminContractStrings.proposal_factory_address, GLOBAL_VAR
+            AdminContractStrings.proposal_factory_address, GLOBAL_VAR
         )
         self.emergency_dao_address = WrappedVar(
-            AlgofiAdminContractStrings.emergency_dao_address, GLOBAL_VAR
+            AdminContractStrings.emergency_dao_address, GLOBAL_VAR
         )
 
         # USER ACCOUNT
@@ -387,10 +387,10 @@ class AlgofiAdminContract:
     def user_owns_storage_account(self, user_account, storage_account):
         """A helper function for checking if a user owns a storage account."""
         storage_account_for_primary = App.localGet(
-            user_account, Bytes(AlgofiAdminContractStrings.storage_account)
+            user_account, Bytes(AdminContractStrings.storage_account)
         )
         user_account_for_storage = App.localGet(
-            storage_account, Bytes(AlgofiAdminContractStrings.user_account)
+            storage_account, Bytes(AdminContractStrings.user_account)
         )
 
         return Seq(
@@ -431,7 +431,7 @@ class AlgofiAdminContract:
             [
                 # verify application call
                 verify_txn_is_named_application_call(
-                    idx, AlgofiAdminContractStrings.update_user_vebank
+                    idx, AdminContractStrings.update_user_vebank
                 ),
                 # verify account (update_user_vebank target account is in index 1)
                 verify_txn_account(idx, 1, account),
@@ -585,7 +585,7 @@ class AlgofiAdminContract:
             self.verify_txn_is_opt_in_call(
                 NEXT_TRANSACTION,
                 Global.current_application_id(),
-                name=AlgofiAdminContractStrings.user_opt_in,
+                name=AdminContractStrings.user_opt_in,
             ),
             # verify this transaction is rekeying to the current application
             MagicAssert(
@@ -604,7 +604,7 @@ class AlgofiAdminContract:
             self.verify_txn_is_opt_in_call(
                 PREVIOUS_TRANSACTION,
                 Global.current_application_id(),
-                name=AlgofiAdminContractStrings.storage_account_opt_in,
+                name=AdminContractStrings.storage_account_opt_in,
             ),
             # verify that the next transaction is an opt in into the voting escrow with the sender of this transaction being the same person opting in
             self.verify_txn_is_opt_in_call(
@@ -679,7 +679,7 @@ class AlgofiAdminContract:
                     NEXT_TRANSACTION,
                     Global.current_application_id(),
                     sender=self.user.storage_account.get(),
-                    name=AlgofiAdminContractStrings.storage_account_close_out,
+                    name=AdminContractStrings.storage_account_close_out,
                 ),
                 # rekey storage account to user
                 send_payment_with_rekey_txn(
@@ -701,7 +701,7 @@ class AlgofiAdminContract:
                     PREVIOUS_TRANSACTION,
                     Global.current_application_id(),
                     sender=self.storage_account.user_account.get(),
-                    name=AlgofiAdminContractStrings.user_close_out,
+                    name=AdminContractStrings.user_close_out,
                 ),
                 Approve(),
             ]
@@ -969,70 +969,70 @@ class AlgofiAdminContract:
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_executed
+                                    AdminContractStrings.set_executed
                                 ),
                                 self.on_set_executed(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.cancel_proposal
+                                    AdminContractStrings.cancel_proposal
                                 ),
                                 self.on_cancel_proposal(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_quorum_value
+                                    AdminContractStrings.set_quorum_value
                                 ),
                                 self.on_set_quorum_value(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_super_majority
+                                    AdminContractStrings.set_super_majority
                                 ),
                                 self.on_set_super_majority(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.fast_track_proposal
+                                    AdminContractStrings.fast_track_proposal
                                 ),
                                 self.on_fast_track_proposal(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_voting_escrow_app_id
+                                    AdminContractStrings.set_voting_escrow_app_id
                                 ),
                                 self.on_set_voting_escrow_app_id(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_proposal_duration
+                                    AdminContractStrings.set_proposal_duration
                                 ),
                                 self.on_set_proposal_duration(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_proposal_factory_address
+                                    AdminContractStrings.set_proposal_factory_address
                                 ),
                                 self.on_set_proposal_factory_address(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_proposal_execution_delay
+                                    AdminContractStrings.set_proposal_execution_delay
                                 ),
                                 self.on_set_proposal_execution_delay(),
                             ],
                             [
                                 type_of_call
                                 == Bytes(
-                                    AlgofiAdminContractStrings.set_proposal_creation_delay
+                                    AdminContractStrings.set_proposal_creation_delay
                                 ),
                                 self.on_set_proposal_creation_delay(),
                             ],
@@ -1046,20 +1046,20 @@ class AlgofiAdminContract:
                 Cond(
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.user_opt_in),
+                        == Bytes(AdminContractStrings.user_opt_in),
                         self.on_user_opt_in(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.proposal_contract_opt_in
+                            AdminContractStrings.proposal_contract_opt_in
                         ),
                         self.on_proposal_contract_opt_in(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.storage_account_opt_in
+                            AdminContractStrings.storage_account_opt_in
                         ),
                         self.on_storage_account_opt_in(),
                     ],
@@ -1071,13 +1071,13 @@ class AlgofiAdminContract:
                 Cond(
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.user_close_out),
+                        == Bytes(AdminContractStrings.user_close_out),
                         self.on_user_close_out(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.storage_account_close_out
+                            AdminContractStrings.storage_account_close_out
                         ),
                         self.on_storage_account_close_out(),
                     ],
@@ -1090,52 +1090,52 @@ class AlgofiAdminContract:
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.update_user_vebank
+                            AdminContractStrings.update_user_vebank
                         ),
                         self.on_update_user_vebank(),
                     ],
                     [
-                        type_of_call == Bytes(AlgofiAdminContractStrings.vote),
+                        type_of_call == Bytes(AdminContractStrings.vote),
                         self.on_vote(),
                     ],
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.delegate),
+                        == Bytes(AdminContractStrings.delegate),
                         self.on_delegate(),
                     ],
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.validate),
+                        == Bytes(AdminContractStrings.validate),
                         self.on_validate(),
                     ],
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.undelegate),
+                        == Bytes(AdminContractStrings.undelegate),
                         self.on_undelegate(),
                     ],
                     [
                         type_of_call
-                        == Bytes(AlgofiAdminContractStrings.delegated_vote),
+                        == Bytes(AdminContractStrings.delegated_vote),
                         self.on_delegated_vote(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.close_out_from_proposal
+                            AdminContractStrings.close_out_from_proposal
                         ),
                         self.on_close_out_from_proposal(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.set_open_to_delegation
+                            AdminContractStrings.set_open_to_delegation
                         ),
                         self.on_set_open_to_delegation(),
                     ],
                     [
                         type_of_call
                         == Bytes(
-                            AlgofiAdminContractStrings.set_not_open_to_delegation
+                            AdminContractStrings.set_not_open_to_delegation
                         ),
                         self.on_set_not_open_to_delegation(),
                     ],

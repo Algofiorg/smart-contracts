@@ -1,8 +1,8 @@
-"""Manager contract for the AlgoFi AMM."""
+"""Manager contract for the AMM."""
 
 from pyteal import *
 
-from algofi.amm.constants import (
+from contracts.amm.constants import (
     DEFAULT_RESERVE_FACTOR,
     FIXED_6_SCALE_FACTOR,
     INIT_FLASH_LOAN_FEE,
@@ -13,62 +13,62 @@ from algofi.amm.constants import (
     N_INITIALIZE_POOL_TXN,
     N_OPT_IN_LOGIC_SIG_TXN,
 )
-from algofi.amm.contract_strings import *
-from algofi.amm.subroutines import send_algo_to_receiver
-from algofi.utils.wrapped_var import *
+from contracts.amm.contract_strings import *
+from contracts.amm.subroutines import send_algo_to_receiver
+from contracts.utils.wrapped_var import *
 
 
-class AlgofiAMMPoolManagerRegistrant:
+class AMMPoolManagerRegistrant:
     """A helper class to represent the global state of a pool manager registrant."""
 
     def __init__(self):
         self.registered_pool_id = WrappedVar(
-            AlgofiAMMManagerStrings.registered_pool_id, LOCAL_VAR, Int(0)
+            AMMManagerStrings.registered_pool_id, LOCAL_VAR, Int(0)
         )
         self.registered_asset_1_id = WrappedVar(
-            AlgofiAMMManagerStrings.registered_asset_1_id, LOCAL_VAR, Int(0)
+            AMMManagerStrings.registered_asset_1_id, LOCAL_VAR, Int(0)
         )
         self.registered_asset_2_id = WrappedVar(
-            AlgofiAMMManagerStrings.registered_asset_2_id, LOCAL_VAR, Int(0)
+            AMMManagerStrings.registered_asset_2_id, LOCAL_VAR, Int(0)
         )
         self.validator_index = WrappedVar(
-            AlgofiAMMManagerStrings.validator_index, LOCAL_VAR, Int(0)
+            AMMManagerStrings.validator_index, LOCAL_VAR, Int(0)
         )
 
 
-class AlgofiAMMPoolManagerPool:
+class AMMPoolManagerPool:
     """A helper class to access the represent the global state of a pool manager."""
 
     def __init__(self, pool_application_id):
         self.admin = WrappedVar(
-            AlgofiAMMPoolStrings.admin,
+            AMMPoolStrings.admin,
             GLOBAL_EX_VAR,
             pool_application_id.load(),
         ).get()
         self.asset_1_id = WrappedVar(
-            AlgofiAMMPoolStrings.asset1_id,
+            AMMPoolStrings.asset1_id,
             GLOBAL_EX_VAR,
             pool_application_id.load(),
         ).get()
         self.asset_2_id = WrappedVar(
-            AlgofiAMMPoolStrings.asset2_id,
+            AMMPoolStrings.asset2_id,
             GLOBAL_EX_VAR,
             pool_application_id.load(),
         ).get()
         self.validator_index = WrappedVar(
-            AlgofiAMMPoolStrings.validator_index,
+            AMMPoolStrings.validator_index,
             GLOBAL_EX_VAR,
             pool_application_id.load(),
         ).get()
 
 
-class AlgofiAMMPoolManagerPoolValidator:
+class AMMPoolManagerPoolValidator:
     """A helper class to access the represent the global state of a pool validator."""
 
     def __init__(self, validator_index):
         self.pool_hash = WrappedVar(
             Concat(
-                Bytes(AlgofiAMMManagerStrings.pool_hash_prefix),
+                Bytes(AMMManagerStrings.pool_hash_prefix),
                 Itob(validator_index.load()),
             ),
             GLOBAL_VAR,
@@ -76,8 +76,8 @@ class AlgofiAMMPoolManagerPoolValidator:
         )
 
 
-class AlgofiAMMPoolManager:
-    """A class to represent the AlgoFi AMM Manager contract."""
+class AMMPoolManager:
+    """A class to represent the AMM Manager contract."""
 
     def __init__(self):
         # SCRATCH VARS
@@ -85,21 +85,21 @@ class AlgofiAMMPoolManager:
         self.pool_application_id_store = ScratchVar(TealType.uint64, 1)
 
         # STATE VARS
-        self.admin = WrappedVar(AlgofiAMMManagerStrings.admin, GLOBAL_VAR)
+        self.admin = WrappedVar(AMMManagerStrings.admin, GLOBAL_VAR)
         self.reserve_factor = WrappedVar(
-            AlgofiAMMManagerStrings.reserve_factor, GLOBAL_VAR
+            AMMManagerStrings.reserve_factor, GLOBAL_VAR
         )
         self.flash_loan_fee = WrappedVar(
-            AlgofiAMMManagerStrings.flash_loan_fee, GLOBAL_VAR
+            AMMManagerStrings.flash_loan_fee, GLOBAL_VAR
         )
         self.max_flash_loan_ratio = WrappedVar(
-            AlgofiAMMManagerStrings.max_flash_loan_ratio, GLOBAL_VAR
+            AMMManagerStrings.max_flash_loan_ratio, GLOBAL_VAR
         )
 
         # HELPER CLASSES
-        self.registrant = AlgofiAMMPoolManagerRegistrant()
-        self.pool = AlgofiAMMPoolManagerPool(self.pool_application_id_store)
-        self.validator = AlgofiAMMPoolManagerPoolValidator(
+        self.registrant = AMMPoolManagerRegistrant()
+        self.pool = AMMPoolManagerPool(self.pool_application_id_store)
+        self.validator = AMMPoolManagerPoolValidator(
             self.pool_validator_index_store
         )
 
@@ -264,7 +264,7 @@ class AlgofiAMMPoolManager:
                     ),
                     Assert(
                         Gtxn[N_INITIALIZE_POOL_TXN].application_args[0]
-                        == Bytes(AlgofiAMMPoolStrings.initialize_pool)
+                        == Bytes(AMMPoolStrings.initialize_pool)
                     ),
                 ]
             )
@@ -356,7 +356,7 @@ class AlgofiAMMPoolManager:
 
     def approval_program(self):
         """
-        The approval program logic for the AlgoFi AMM Manager contract.
+        The approval program logic for the AMM Manager contract.
 
         A conditional over the transaction type and parameters is used
         to route the transaction to the appropriate method.
@@ -386,28 +386,28 @@ class AlgofiAMMPoolManager:
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMManagerStrings.set_validator
+                                    AMMManagerStrings.set_validator
                                 ),
                                 self.on_set_validator(),
                             ],
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMManagerStrings.set_reserve_factor
+                                    AMMManagerStrings.set_reserve_factor
                                 ),
                                 self.on_set_reserve_factor(),
                             ],
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMManagerStrings.set_flash_loan_fee
+                                    AMMManagerStrings.set_flash_loan_fee
                                 ),
                                 self.on_set_flash_loan_fee(),
                             ],
                             [
                                 Txn.application_args[0]
                                 == Bytes(
-                                    AlgofiAMMManagerStrings.set_max_flash_loan_ratio
+                                    AMMManagerStrings.set_max_flash_loan_ratio
                                 ),
                                 self.on_set_max_flash_loan_ratio(),
                             ],
@@ -419,7 +419,7 @@ class AlgofiAMMPoolManager:
                 And(
                     Txn.on_completion() == OnComplete.NoOp,
                     Txn.application_args[0]
-                    == Bytes(AlgofiAMMManagerStrings.farm_ops),
+                    == Bytes(AMMManagerStrings.farm_ops),
                 ),
                 Int(1),
             ],
