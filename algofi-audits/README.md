@@ -1,2 +1,2 @@
-# algofi-audits
-Audit reports for the Algofi protocol
+# audits
+Audit reports for the protocol

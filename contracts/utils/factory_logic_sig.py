@@ -1,9 +1,9 @@
-"""Logic sig to register an algofi pool with the manager"""
+"""Logic sig to register a pool with the manager"""
 
 from pyteal import *
 
 
-class AlgofiPoolFactoryLogicSig:
+class PoolFactoryLogicSig:
     def __init__(
         self, manager_app_id, asset_1_id, asset_2_id, pool_validator_index
     ):

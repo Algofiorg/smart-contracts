@@ -2,7 +2,7 @@
 
 from pyteal import *
 
-from algofi.utils.constants import *
+from contracts.utils.constants import *
 
 # DEV MODE FLAG
 DEV_MODE = True
@@ -23,7 +23,7 @@ LOCAL_INTS_PROPOSAL_CONTRACT = Int(2)
 
 
 # SCRATCH SLOTS
-class AlgofiAdminContractScratchSlots:
+class AdminContractScratchSlots:
     """A class containing scratch slots for the admin contract."""
 
     delegatee_storage_address = 0
@@ -32,7 +32,7 @@ class AlgofiAdminContractScratchSlots:
     closeout_user_address = 3
 
 
-class AlgofiProposalFactoryScratchSlots:
+class ProposalFactoryScratchSlots:
     """A class containing scratch slots for the proposal factory contract."""
 
     min_balance = 0

@@ -1,8 +1,8 @@
-"""Contains the mathematical implementation of the Stable Pool variation of the Algofi AMM."""
+"""Contains the mathematical implementation of the Stable Pool variation of the AMM."""
 
 from pyteal import *
 
-from algofi.amm.constants import FIXED_6_SCALE_FACTOR
+from contracts.amm.constants import FIXED_6_SCALE_FACTOR
 
 
 @Subroutine(TealType.uint64)

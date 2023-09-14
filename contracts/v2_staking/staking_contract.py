@@ -1,14 +1,14 @@
 """A module containing the staking contract."""
 from pyteal import *
 
-from algofi.governance.contract_strings import AlgofiVotingEscrowStrings
-from algofi.utils.wrapped_var import *
-from algofi.v2_staking.constants import *
-from algofi.v2_staking.constants import AlgofiStakingScratchSlots
-from algofi.v2_staking.contract_strings import (
-    AlgofiStakingStrings as StakingStrings,
+from contracts.governance.contract_strings import VotingEscrowStrings
+from contracts.utils.wrapped_var import *
+from contracts.v2_staking.constants import *
+from contracts.v2_staking.constants import StakingScratchSlots
+from contracts.v2_staking.contract_strings import (
+    StakingStrings as StakingStrings,
 )
-from algofi.v2_staking.subroutines import *
+from contracts.v2_staking.subroutines import *
 
 
 class StakingUser:
@@ -71,7 +71,7 @@ class StakingUser:
             self.account, self.voting_escrow_app_id
         )
         self.external_boost_multiplier = WrappedVar(
-            AlgofiVotingEscrowStrings.user_boost_multiplier,
+            VotingEscrowStrings.user_boost_multiplier,
             LOCAL_EX_VAR,
             index=self.account,
             app_id=self.voting_escrow_app_id,
@@ -98,7 +98,7 @@ class StakingUser:
                                     TxnField.application_id: self.voting_escrow_app_id,
                                     TxnField.application_args: [
                                         Bytes(
-                                            AlgofiVotingEscrowStrings.update_vebank_data
+                                            VotingEscrowStrings.update_vebank_data
                                         )
                                     ],
                                     TxnField.accounts: [self.account],
@@ -169,10 +169,10 @@ class StakingRewardsProgram:
 
         # SCRATCH VARS
         self.rewards_to_issue = ScratchVar(
-            TealType.uint64, AlgofiStakingScratchSlots.rewards_to_issue
+            TealType.uint64, StakingScratchSlots.rewards_to_issue
         )
         self.rewards_available = ScratchVar(
-            TealType.uint64, AlgofiStakingScratchSlots.rewards_available
+            TealType.uint64, StakingScratchSlots.rewards_available
         )
 
         # REWARDS PROGRAM STATE
@@ -367,10 +367,10 @@ class StakingContract:
 
         # SCRATCH VARS
         self.rewards_program_index = ScratchVar(
-            TealType.uint64, AlgofiStakingScratchSlots.rewards_program_index
+            TealType.uint64, StakingScratchSlots.rewards_program_index
         )
         self.amount_staked = ScratchVar(
-            TealType.uint64, AlgofiStakingScratchSlots.amount_staked
+            TealType.uint64, StakingScratchSlots.amount_staked
         )
 
         # ADMIN STATE

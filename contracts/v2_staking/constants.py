@@ -1,13 +1,13 @@
 """Constants for the staking contracts"""
 from pyteal import *
 
-from algofi.utils.constants import *
+from contracts.utils.constants import *
 
 # DEV MODE FLAG
 DEV_MODE = False
 
 
-class AlgofiStakingScratchSlots:
+class StakingScratchSlots:
     rewards_program_index = 0
     amount_staked = 1
 

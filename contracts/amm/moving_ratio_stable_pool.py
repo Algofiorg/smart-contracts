@@ -1,38 +1,38 @@
-"""A contract used modify the stable AlgofiAMMPool to use a moving ratio."""
+"""A contract used modify the stable AMMPool to use a moving ratio."""
 
 from pyteal import *
 
-from algofi.amm.constants import (
+from contracts.amm.constants import (
     DEFAULT_STABLESWAP_FEE_PCT_SCALED,
     MAX_AMPLIFICATION_FACTOR,
 )
-from algofi.amm.contract_strings import AlgofiAMMPoolStrings
-from algofi.amm.pool import AlgofiAMMPool
-from algofi.amm.stable_swap_math import (
+from contracts.amm.contract_strings import AMMPoolStrings
+from contracts.amm.pool import AMMPool
+from contracts.amm.stable_swap_math import (
     compute_D,
     compute_other_asset_output_stable_swap,
     interpolate_amplification_factor,
 )
-from algofi.amm.subroutines import op_up
-from algofi.utils.wrapped_var import *
+from contracts.amm.subroutines import op_up
+from contracts.utils.wrapped_var import *
 
 
-class AlgofiAMMStablePool(AlgofiAMMPool):
+class AMMStablePool(AMMPool):
     """Stable pool contract."""
 
     def __init__(self, manager_app_id):
         super().__init__(manager_app_id, DEFAULT_STABLESWAP_FEE_PCT_SCALED)
         self.initial_amplification_factor = WrappedVar(
-            AlgofiAMMPoolStrings.initial_amplification_factor, GLOBAL_VAR
+            AMMPoolStrings.initial_amplification_factor, GLOBAL_VAR
         )
         self.future_amplification_factor = WrappedVar(
-            AlgofiAMMPoolStrings.future_amplification_factor, GLOBAL_VAR
+            AMMPoolStrings.future_amplification_factor, GLOBAL_VAR
         )
         self.initial_amplification_factor_time = WrappedVar(
-            AlgofiAMMPoolStrings.initial_amplification_factor_time, GLOBAL_VAR
+            AMMPoolStrings.initial_amplification_factor_time, GLOBAL_VAR
         )
         self.future_amplification_factor_time = WrappedVar(
-            AlgofiAMMPoolStrings.future_amplification_factor_time, GLOBAL_VAR
+            AMMPoolStrings.future_amplification_factor_time, GLOBAL_VAR
         )
         self.lp_asset_prefix = Bytes("AF-NANO-POOL-")
 
@@ -156,22 +156,22 @@ class AlgofiAMMStablePool(AlgofiAMMPool):
         return super()._admin_fns_list() + [
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.ramp_amplification_factor),
+                == Bytes(AMMPoolStrings.ramp_amplification_factor),
                 self.on_ramp_amplification_factor(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.update_swap_fee),
+                == Bytes(AMMPoolStrings.update_swap_fee),
                 self.on_update_swap_fee(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.schedule_swap_fee_update),
+                == Bytes(AMMPoolStrings.schedule_swap_fee_update),
                 self.on_schedule_swap_fee_update(),
             ],
             [
                 Txn.application_args[0]
-                == Bytes(AlgofiAMMPoolStrings.increase_param_update_delay),
+                == Bytes(AMMPoolStrings.increase_param_update_delay),
                 self.on_increase_param_delay(),
             ],
         ]

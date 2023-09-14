@@ -49,6 +49,5 @@ These modifications are implemented in three key mathematical methods:
 For more details on AMM, Algorand Smart Contracts, and PyTeal, please refer to the following resources:
 
 - [Automated Market Makers](https://www.investopedia.com/terms/a/automated-market-maker-amm.asp)
-- [Introducing NanoSwap](https://blog.algofi.org/introducing-nanoswap-632ce7ae942b)
 - [Algorand Smart Contracts](https://developer.algorand.org/docs/features/asc1/)
 - [PyTeal Documentation](https://pyteal.readthedocs.io/en/latest/)

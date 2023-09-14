@@ -2,12 +2,12 @@
 
 from pyteal import *
 
-from algofi.governance.contract_strings import (
-    AlgofiAdminContractStrings,
-    AlgofiProposalStrings,
+from contracts.governance.contract_strings import (
+    AdminContractStrings,
+    ProposalStrings,
 )
-from algofi.governance.subroutines import *
-from algofi.utils.wrapped_var import *
+from contracts.governance.subroutines import *
+from contracts.utils.wrapped_var import *
 
 
 # Subroutines
@@ -25,7 +25,7 @@ def opt_proposal_contract_into_admin(
                 TxnField.application_id: admin_app_id,
                 TxnField.on_completion: OnComplete.OptIn,
                 TxnField.application_args: [
-                    Bytes(AlgofiAdminContractStrings.proposal_contract_opt_in)
+                    Bytes(AdminContractStrings.proposal_contract_opt_in)
                 ],
                 TxnField.applications: [],
                 TxnField.accounts: [proposer, proposer_admin_storage_account],
@@ -44,15 +44,15 @@ class Proposal:
         self.admin_app_id = Int(admin_app_id)
 
         # GLOBAL BYTES
-        self.title = WrappedVar(AlgofiProposalStrings.title, GLOBAL_VAR)
-        self.link = WrappedVar(AlgofiProposalStrings.link, GLOBAL_VAR)
+        self.title = WrappedVar(ProposalStrings.title, GLOBAL_VAR)
+        self.link = WrappedVar(ProposalStrings.link, GLOBAL_VAR)
 
         # LOCAL INTS
         self.for_or_against = WrappedVar(
-            AlgofiProposalStrings.for_or_against, LOCAL_VAR, Int(0)
+            ProposalStrings.for_or_against, LOCAL_VAR, Int(0)
         )
         self.voting_amount = WrappedVar(
-            AlgofiProposalStrings.voting_amount, LOCAL_VAR, Int(0)
+            ProposalStrings.voting_amount, LOCAL_VAR, Int(0)
         )
 
     # CREATE
@@ -130,7 +130,7 @@ class Proposal:
                 is_opt_in,
                 Cond(
                     [
-                        type_of_call == Bytes(AlgofiProposalStrings.user_vote),
+                        type_of_call == Bytes(ProposalStrings.user_vote),
                         self.on_user_vote(),
                     ]
                 ),
@@ -140,7 +140,7 @@ class Proposal:
                 Cond(
                     [
                         type_of_call
-                        == Bytes(AlgofiProposalStrings.opt_into_admin),
+                        == Bytes(ProposalStrings.opt_into_admin),
                         self.on_opt_into_admin(),
                     ]
                 ),
@@ -150,7 +150,7 @@ class Proposal:
                 Cond(
                     [
                         type_of_call
-                        == Bytes(AlgofiProposalStrings.user_close_out),
+                        == Bytes(ProposalStrings.user_close_out),
                         self.on_user_close_out(),
                     ]
                 ),

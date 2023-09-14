@@ -1,8 +1,8 @@
-"""Defines the contract strings for the Algofi AMM contracts."""
+"""Defines the contract strings for the AMM contracts."""
 
 
-class AlgofiAMMPoolStrings:
-    """Algofi AMM Pool contract strings."""
+class AMMPoolStrings:
+    """AMM Pool contract strings."""
 
     admin = "a"
     asset1_id = "a1"
@@ -56,8 +56,8 @@ class AlgofiAMMPoolStrings:
     validator_index = "vi"
 
 
-class AlgofiAMMManagerStrings:
-    """Algofi AMM Manager contract strings."""
+class AMMManagerStrings:
+    """AMM Manager contract strings."""
 
     admin = "a"
     farm_ops = "fo"
